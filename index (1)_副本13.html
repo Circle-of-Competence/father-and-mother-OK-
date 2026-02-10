@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPR 准父母准备度残酷评估系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #27ae60; /* 沉稳绿，代表通过 */
+            --danger: #e74c3c;    /* 警示红 */
+            --accent: #8e44ad;    /* 神秘紫 */
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: var(--card);
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        /* 进度条 */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        h1 { text-align: center; margin-bottom: 10px; font-size: 2.2em; color: var(--primary); }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 40px; }
+
+        /* Setup Phase */
+        .setup-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 1.1em; }
+        select { width: 100%; padding: 15px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 16px; margin-bottom: 25px; outline: none; transition: 0.3s; }
+        select:focus { border-color: var(--accent); }
+
+        /* Quiz Phase */
+        .question-card { text-align: center; margin-top: 20px; animation: fadeIn 0.5s; }
+        .question-text { font-size: 1.5em; font-weight: 600; margin-bottom: 30px; min-height: 90px; display: flex; align-items: center; justify-content: center; line-height: 1.4; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.6em;
+            border-radius: 4px;
+            color: white;
+            vertical-align: middle;
+            margin-right: 10px;
+            transform: translateY(-2px);
+        }
+
+        .options-grid { display: grid; gap: 15px; max-width: 600px; margin: 0 auto; }
+        .option-btn {
+            padding: 18px;
+            border: 2px solid #ecf0f1;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .option-btn:hover { border-color: var(--accent); background: #fdf5ff; transform: translateY(-3px); }
+
+        /* Result Phase */
+        #print-area { background: white; padding: 40px; }
+        
+        .result-header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .style-box {
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .style-title { font-size: 2.5em; font-weight: bold; margin-bottom: 10px; }
+        .style-tag { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9em; }
+
+        .radar-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .score-pill {
+            background: #f8f9fa;
+            border: 1px solid #eee;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .score-pill span { font-size: 1.4em; color: var(--accent); }
+
+        /* 建议卡片 */
+        .advice-list { display: flex; flex-direction: column; gap: 25px; }
+        
+        .advice-card {
+            background: #fffcf5;
+            border-left: 6px solid #f39c12;
+            padding: 25px;
+            border-radius: 6px;
+            page-break-inside: avoid;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        
+        .advice-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #d35400;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .advice-block { margin-bottom: 12px; line-height: 1.8; font-size: 0.95em; text-align: justify; }
+        .tag { font-weight: bold; background: rgba(243, 156, 18, 0.15); padding: 2px 6px; border-radius: 4px; color: #d35400; margin-right: 5px; }
+
+        /* 按钮 */
+        .btn-main {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-main:hover { background: #732d91; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); margin-top: 10px; }
+        .btn-outline:hover { background: #fbf4ff; }
+
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-container" id="progress-box">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div id="setup-phase">
+        <h1>PPR 父母资格与准备度残酷评估</h1>
+        <div class="subtitle">这不仅仅是个测试，这是给你未来孩子的一份保险</div>
+        
+        <div class="setup-group">
+            <label>您当前的财务与生活状态：</label>
+            <select id="finance-status">
+                <option value="Stable">相当稳定 (有房有积蓄，抗风险能力强)</option>
+                <option value="Growing">上升期 (收支平衡，但怕突发大额支出)</option>
+                <option value="Tight">月光族 (一人吃饱全家不饿，多了不行)</option>
+                <option value="Chaos">混乱 (还没搞清钱去哪了)</option>
+            </select>
+        </div>
+        <div class="setup-group">
+            <label>您要孩子的核心动机：</label>
+            <select id="motivation">
+                <option value="Love">付出爱 (想体验生命成长的过程)</option>
+                <option value="Fix">修复关系 (觉得有了孩子婚姻会更稳固)</option>
+                <option value="Pressure">社会压力 (父母催/同龄人都生了)</option>
+                <option value="Pension">防老 (养儿防老，投资回报)</option>
+            </select>
+        </div>
+        <button class="btn-main" onclick="startQuiz()">面对现实</button>
+    </div>
+
+    <div id="quiz-phase" class="hidden">
+        <div class="question-card">
+            <div id="q-text" class="question-text">加载中...</div>
+            <div class="options-grid"></div>
+        </div>
+    </div>
+
+    <div id="result-phase" class="hidden">
+        <div id="print-area">
+            <div class="result-header">
+                <h1>PPR 父母资格鉴定书</h1>
+                <p>鉴定时间: <span id="report-date"></span></p>
+            </div>
+
+            <div class="style-box">
+                <div class="style-title" id="final-archetype">分析中...</div>
+                <div class="style-tag" id="final-tag">...</div>
+                <p id="final-desc" style="margin-top:20px; font-size:1.1em; opacity:0.9;">...</p>
+            </div>
+
+            <div class="radar-box">
+                <div class="score-pill">🧠 心理韧性 <span id="score-psy">0%</span></div>
+                <div class="score-pill">💰 物质基础 <span id="score-mat">0%</span></div>
+                <div class="score-pill">🤝 社会支持 <span id="score-soc">0%</span></div>
+            </div>
+
+            <h2>💊 您的“避坑”行动清单</h2>
+            <p style="color:#666; margin-bottom:20px;">如果以下建议让您感到被冒犯，那么恭喜您，我们戳中了痛点：</p>
+            
+            <div id="advice-container" class="advice-list">
+                </div>
+            
+            <div style="margin-top:50px; text-align:center; font-size:0.8em; color:#999; border-top:1px solid #eee; padding-top:20px;">
+                本报告由 PPR (Prospective Parent Readiness) 算法引擎生成 · 不构成医疗建议，但构成生存建议
+            </div>
+        </div>
+
+        <button class="btn-main" onclick="downloadPDF()">⬇️ 保存诊断报告 (PDF)</button>
+        <button class="btn-main btn-outline" onclick="location.reload()">↺ 我不服，重测</button>
+    </div>
+</div>
+
+<script>
+    /* domain: 
+    - PSY: 心理 (Psychological)
+    - MAT: 物质/现实 (Material)
+    - SOC: 社交/关系 (Social/Relational)
+    
+    optimalVal: 'high' (应选同意/完全同意) / 'low' (应选不同意/完全不同意)
+    */
+    const questions = [
+        {
+            text: "我愿意在未来3-5年内，彻底牺牲掉睡到自然醒、随叫随到的聚会和安静的如厕时间。",
+            domain: 'PSY',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>现实暴击</span> 如果您还在缅怀“说走就走的旅行”，请赶紧买张机票去玩，别买验孕棒。孩子就像一台没有“关机键”且漏油的除草机，会24小时碾压您的个人空间。</div><div class='advice-block'><span class='tag'>行动指南</span> 试着每天调闹钟在凌晨3点起床，抱着一个十斤重的西瓜走动一小时，坚持一周。如果您觉得这很酷，那您过关了。</div>"
+        },
+        {
+            text: "我认为孩子的到来能修补我和伴侣之间目前的裂痕，让我们更亲密。",
+            domain: 'SOC',
+            optimalVal: 'low', // 这是一个陷阱题
+            advice: "<div class='advice-block'><span class='tag'>红色警报</span> 孩子不是婚姻的胶水，孩子是婚姻的“压力测试仪”和“照妖镜”。如果你们现在为了洗碗吵架，有了孩子后，你们会为了谁去换那个充满放射性气味的尿布而打第三次世界大战。</div><div class='advice-block'><span class='tag'>行动指南</span> 先去把婚结明白，或者把架吵明白。在关系稳固之前生孩子，通常是单亲家庭的预备动作。</div>"
+        },
+        {
+            text: "我有足够的存款，即使我和伴侣其中一人失业半年，也能维持家庭运转。",
+            domain: 'MAT',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>扎心吐槽</span> 所谓“穷有穷养”，通常是没经历过半夜发烧去医院排队、或者看着学区房房价叹气的人说的。金钱买不来爱，但能买来作为父母最需要的东西：**心态的从容**。</div><div class='advice-block'><span class='tag'>潜在后果</span> 贫贱夫妻百事哀，由于经济压力导致的家庭争吵，是孩子心理阴影的主要来源之一。</div>"
+        },
+        {
+            text: "当看到别人的孩子在餐厅尖叫打滚时，我不仅不会厌恶，还能理解这是发展的正常阶段。",
+            domain: 'PSY',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>心理侧写</span> 如果您现在看到熊孩子只想翻白眼，那等您自己有了孩子，您可能会成为那种在超市里对着孩子咆哮的失控家长。</div><div class='advice-block'><span class='tag'>行动指南</span> 您的孩子一定会在最不合适的场合（比如老板也在的餐厅）让您丢脸。请提前练习“厚脸皮神功”和“温和坚定地抱离现场”技能。</div>"
+        },
+        {
+            text: "我已经做好了心理准备，接受我的孩子可能是一个极其普通、甚至平庸的人。",
+            domain: 'PSY',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>扎心吐槽</span> 承认吧，我们大多数人都是NPC。如果您生孩子的目的是为了练个“满级小号”来实现您的清华梦，请去玩RPG游戏。逼迫一个普通孩子成为天才，是东亚家庭最大的悲剧来源。</div><div class='advice-block'><span class='tag'>行动指南</span> 请对着镜子念三遍：“我的孩子可能数学不及格，但这不影响我爱他/她。”</div>"
+        },
+        {
+            text: "我的父母或公婆愿意并有能力提供育儿支持，且我们在这个问题上达成了一致。",
+            domain: 'SOC',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>现实暴击</span> “那是我的孩子，我自己带！”这话听着硬气，但在您连续熬夜30天后，您会跪着求隔壁王大妈帮忙看一分钟。</div><div class='advice-block'><span class='tag'>行动指南</span> 育儿需要一个村庄。如果没有老人帮忙，请确认您的银行卡余额足够雇佣靠谱的育儿嫂。孤军奋战的父母通常离抑郁症只有一步之遥。</div>"
+        },
+        {
+            text: "我认为“听话”是好孩子最重要的品质，家长必须有绝对权威。",
+            domain: 'PSY',
+            optimalVal: 'low',
+            advice: "<div class='advice-block'><span class='tag'>观念排毒</span> 您想养的是孩子还是宠物？在这个AI时代，只会“听话”的孩子是最容易被替代的。绝对权威带来的是绝对的叛逆或绝对的懦弱。</div><div class='advice-block'><span class='tag'>行动指南</span> 如果您控制欲爆棚，建议养狗。养人需要的是“园丁”心态（提供环境），而不是“木匠”心态（按图纸切割）。</div>"
+        },
+        {
+            text: "当伴侣在育儿方式上和我有分歧时，我有信心我们能冷静协商，而不是冷战或互相指责。",
+            domain: 'SOC',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>扎心吐槽</span> 猪队友之所以是猪队友，往往不是因为他/她笨，而是因为你们的沟通机制是“指责型”的。在凌晨两点的婴儿哭声中，任何微小的分歧都会被放大成原则问题。</div><div class='advice-block'><span class='tag'>行动指南</span> 现在就建立“停战协议”。约定好谁是红脸谁是白脸，或者在情绪上头时先闭嘴10分钟。</div>"
+        },
+        {
+            text: "我能接受家里长期处于“乱糟糟”的状态，地板上有玩具，墙上有涂鸦。",
+            domain: 'MAT',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>洁癖预警</span> 对于有洁癖的人来说，孩子就是行走的高熵体。如果您因为地板上有一滴奶渍就抓狂，您的精神状态会时刻处于崩溃边缘，孩子也会活得战战兢兢。</div><div class='advice-block'><span class='tag'>行动指南</span> 放弃“样板间”的幻想。把“整洁”的标准从“一尘不染”降低到“没有生物危害”。</div>"
+        },
+        {
+            text: "我生孩子不是为了让他给我养老，或者完成我未竟的梦想。",
+            domain: 'PSY',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>扎心吐槽</span> 任何抱着“投资回报”心态生孩子的人，最后都会亏得底裤都不剩。现代育儿是一项高投入、零金钱回报、且大概率被孩子嫌弃的“慈善事业”。</div><div class='advice-block'><span class='tag'>行动指南</span> 您的养老金靠社保和理财，别靠孩子。爱他，仅仅因为他是一个独立的生命，而不是您的续集。</div>"
+        },
+        {
+            text: "如果孩子生病、学校有事，我的工作允许我较为灵活地请假处理。",
+            domain: 'MAT',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>职场现实</span> 孩子不会挑周末生病。如果您在一家“上厕所都要打报告”的公司，或者您的职位容不得半点分心，那么“由于育儿导致的职业危机”很快就会到来。</div><div class='advice-block'><span class='tag'>行动指南</span> 评估一下职业赛道。有时候，为了孩子换一个钱少点但事少点的工作，不是认怂，是战略调整。</div>"
+        },
+        {
+            text: "我已经处理好了自己的原生家庭创伤，不会无意识地把它投射给孩子。",
+            domain: 'PSY',
+            optimalVal: 'high',
+            advice: "<div class='advice-block'><span class='tag'>灵魂拷问</span> 许多人说“我绝不像我爸/妈那样对待孩子”，结果在情绪失控的那一刻，发现自己简直就是父母的克隆体。未经疗愈的创伤会代代相传。</div><div class='advice-block'><span class='tag'>行动指南</span> 先做自己的父母，把自己重新养一遍。在把一个无辜的生命带到世界上之前，请先清理好心灵的垃圾场。</div>"
+        }
+    ];
+
+    /* ================= 逻辑控制 ================= */
+    let currentIdx = 0;
+    let scores = { PSY: 0, MAT: 0, SOC: 0 };
+    let counts = { PSY: 0, MAT: 0, SOC: 0 };
+    let collectedAdvice = [];
+    
+    document.getElementById('report-date').innerText = new Date().toLocaleDateString();
+
+    function startQuiz() {
+        document.getElementById('setup-phase').classList.add('hidden');
+        document.getElementById('quiz-phase').classList.remove('hidden');
+        document.getElementById('progress-box').classList.remove('hidden');
+        showQuestion(0);
+    }
+
+    function showQuestion(idx) {
+        if (idx >= questions.length) {
+            finishQuiz();
+            return;
+        }
+
+        const q = questions[idx];
+        const pct = ((idx) / questions.length) * 100;
+        document.getElementById('progress-bar').style.width = `${pct}%`;
+
+        // 徽章颜色
+        let badgeColor = "#3498db";
+        if(q.domain === 'MAT') badgeColor = "#f1c40f"; // 黄色
+        if(q.domain === 'SOC') badgeColor = "#e74c3c"; // 红色
+        
+        let badgeText = q.domain === 'PSY' ? '心理准备' : (q.domain === 'MAT' ? '物质现实' : '社会关系');
+        
+        document.getElementById('q-text').innerHTML = 
+            `<span class="badge" style="background:${badgeColor}">${badgeText}</span><br>${q.text}`;
+        
+        const optsDiv = document.querySelector('.options-grid');
+        optsDiv.innerHTML = '';
+        const labels = ["完全不同意", "不同意", "中立", "同意", "完全同意"];
+        
+        labels.forEach((label, val) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerText = label;
+            btn.onclick = (e) => handleAnswer(val, e);
+            optsDiv.appendChild(btn);
+        });
+    }
+
+    function handleAnswer(val, event) {
+        fireConfetti(event.clientX, event.clientY);
+        
+        const q = questions[currentIdx];
+        
+        // 计分逻辑
+        // 如果 optimalVal 是 high (4分最好)，则 val 直接加分
+        // 如果 optimalVal 是 low (0分最好)，则 (4-val) 加分
+        let scoreToAdd = (q.optimalVal === 'high') ? val : (4 - val);
+        
+        scores[q.domain] += scoreToAdd;
+        counts[q.domain] += 4; // 每题满分4
+
+        // 建议触发机制 (只要不是选了最优的那两档，就触发建议)
+        let triggerAdvice = false;
+        if (q.optimalVal === 'high' && val <= 2) triggerAdvice = true;
+        if (q.optimalVal === 'low' && val >= 2) triggerAdvice = true;
+
+        if (triggerAdvice) {
+            collectedAdvice.push({
+                domain: q.domain,
+                text: q.advice
+            });
+        }
+
+        currentIdx++;
+        
+        // UI反馈
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach(b => b.style.pointerEvents = 'none');
+        event.target.style.background = '#e8f8f5';
+        event.target.style.borderColor = '#2ecc71';
+
+        setTimeout(() => showQuestion(currentIdx), 350);
+    }
+
+    function finishQuiz() {
+        document.getElementById('quiz-phase').classList.add('hidden');
+        document.getElementById('progress-box').classList.add('hidden');
+        document.getElementById('result-phase').classList.remove('hidden');
+
+        // 计算各维度百分比
+        const psyPct = Math.round((scores.PSY / counts.PSY) * 100) || 0;
+        const matPct = Math.round((scores.MAT / counts.MAT) * 100) || 0;
+        const socPct = Math.round((scores.SOC / counts.SOC) * 100) || 0;
+        const totalPct = Math.round(((scores.PSY + scores.MAT + scores.SOC) / (counts.PSY + counts.MAT + counts.SOC)) * 100);
+
+        document.getElementById('score-psy').innerText = psyPct + "%";
+        document.getElementById('score-mat').innerText = matPct + "%";
+        document.getElementById('score-soc').innerText = socPct + "%";
+
+        // 风格/结果判定
+        let archetype = "";
+        let tag = "";
+        let desc = "";
+
+        if (totalPct >= 85) {
+            archetype = "六边形战士 (The Ready Warrior)";
+            tag = "极其稀有的合格父母预备役";
+            desc = "您的心理、钱包和队友都已就位。您对育儿的残酷性有清醒的认知，且并未被吓跑。请保持这份清醒，孩子会感谢您的。";
+        } else if (totalPct >= 65) {
+            archetype = "理性的赌徒 (The Cautious Planner)";
+            tag = "及格，但风险尚存";
+            desc = "您大体上准备好了，但在某些关键领域（可能是钱，可能是心态）还存在短板。孩子生下来能养活，但过程可能会比您预期的鸡飞狗跳一些。";
+        } else if (totalPct >= 45) {
+            archetype = "盲目的勇者 (The Dreamer)";
+            tag = "仅凭一腔热血是危险的";
+            desc = "您把育儿想得太简单了。要么是高估了自己的耐心，要么是低估了钞票的燃烧速度。建议先买个仙人掌练练手，或者存够钱再来。";
+        } else {
+            archetype = "自由的灵魂 (The Freedom Spirit)";
+            tag = "请放过孩子，也放过自己";
+            desc = "此时此刻，您最适合做的就是——享受单身/二人世界！您还没准备好为一个生命负责，这不可耻，强行生才可耻。";
+        }
+
+        document.getElementById('final-archetype').innerText = archetype;
+        document.getElementById('final-tag').innerText = tag;
+        document.getElementById('final-desc').innerText = desc;
+
+        // 生成建议列表
+        const container = document.getElementById('advice-container');
+        container.innerHTML = "";
+
+        // 1. 插入动机警告 (Setup Phase Logic)
+        const motivation = document.getElementById('motivation').value;
+        if (motivation === 'Fix' || motivation === 'Pressure' || motivation === 'Pension') {
+            let warnText = "";
+            if(motivation === 'Fix') warnText = "您选择了‘修复关系’作为动机。这是育儿界最大的赌博，且胜率几乎为零。请先修复关系，再生孩子。";
+            if(motivation === 'Pressure') warnText = "您是因为‘压力’才生的？哪怕所有人都在催您，最后半夜起来喂奶的只有您自己。别为别人的期待买单。";
+            if(motivation === 'Pension') warnText = "‘养儿防老’？现在的行情是‘养儿啃老’。请调整预期，把爱变得纯粹一点。";
+
+            const motivDiv = document.createElement('div');
+            motivDiv.className = 'advice-card';
+            motivDiv.style.borderLeftColor = '#e74c3c';
+            motivDiv.innerHTML = `<div class='advice-header'>🚫 动机熔断警告</div><div class='advice-block'>${warnText}</div>`;
+            container.appendChild(motivDiv);
+        }
+
+        // 2. 插入答题生成的建议
+        if (collectedAdvice.length === 0 && totalPct > 80) {
+            const perfectDiv = document.createElement('div');
+            perfectDiv.className = 'advice-card';
+            perfectDiv.style.borderLeftColor = '#27ae60';
+            perfectDiv.innerHTML = `<div class='advice-header'>🎉 准备充分</div><div class='advice-block'>您的认知非常清晰，没有明显的思维雷区。保持这份理性，迎接小怪兽的到来吧！</div>`;
+            container.appendChild(perfectDiv);
+        } else {
+            collectedAdvice.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'advice-card';
+                // 根据domain设置颜色条
+                let color = '#f39c12';
+                if(item.domain === 'PSY') color = '#3498db';
+                if(item.domain === 'SOC') color = '#e74c3c';
+                div.style.borderLeftColor = color;
+                
+                div.innerHTML = `<div class='advice-header'>🔍 风险点 #${i+1}</div>` + item.text;
+                container.appendChild(div);
+            });
+        }
+    }
+
+    function fireConfetti(x, y) {
+        const xNorm = x / window.innerWidth;
+        const yNorm = y / window.innerHeight;
+        confetti({
+            particleCount: 30, spread: 40, origin: { x: xNorm, y: yNorm },
+            colors: ['#2ecc71', '#3498db', '#9b59b6'],
+            disableForReducedMotion: true
+        });
+    }
+
+    window.downloadPDF = async function() {
+        const element = document.getElementById('print-area');
+        const btn = document.querySelector('.btn-main');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ 正在生成...";
+        btn.disabled = true;
+
+        try {
+            window.scrollTo(0,0);
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            // 简单的长图处理
+            let heightLeft = pdfHeight;
+            let position = 0;
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - pdfHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save('PPR_准父母资格鉴定书.pdf');
+
+        } catch (err) {
+            console.error(err);
+            alert("生成PDF遇到问题，建议使用浏览器自带打印功能(Ctrl+P)保存。");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
