@@ -218,128 +218,154 @@
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-       <style>
-    /* 容器样式：保持清爽，与其他内容区隔开 */
-    .cross-promo-box {
-        margin: 40px auto 20px auto; /* 上边距大一点，作为页面的结尾 */
-        padding: 20px;
-        max-width: 900px;
-        background: rgba(255, 255, 255, 0.85); /* 稍微白一点的背景 */
-        border-radius: 16px;
-        text-align: center;
-        border: 2px dashed #e0e0e0; /* 虚线边框 */
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    
-    .promo-title {
-        font-size: 1.2em;
-        color: #333;
-        margin-bottom: 20px;
-        font-weight: 700;
-        letter-spacing: 1px;
-    }
-
-    /* 网格布局：自动适应 */
-    .promo-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        justify-content: center;
-    }
-
-    /* 按钮样式 */
-    .promo-link {
-        text-decoration: none;
-        color: white;
-        padding: 15px 10px;
-        border-radius: 10px;
-        font-size: 0.95em;
-        font-weight: bold;
-        /* 关键布局参数：手机上一行2个，电脑上自动拉伸 */
-        flex: 1 0 140px; 
-        max-width: 220px; /* 限制最大宽度，防止在电脑上变得太长 */
+        /* 容器样式：保持清爽，与其他内容区隔开 */
+        .cross-promo-box {
+            margin: 40px auto 20px auto; 
+            padding: 20px;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.85); 
+            border-radius: 16px;
+            text-align: center;
+            border: 2px dashed #e0e0e0; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
         
-        transition: all 0.25s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column; /* 图标在上，文字在下 */
-        align-items: center;
-        justify-content: center;
-        line-height: 1.4;
-    }
+        .promo-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
 
-    /* 鼠标悬停动效 */
-    .promo-link:hover {
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-        opacity: 0.95;
-    }
-    
-    .promo-icon {
-        font-size: 1.5em;
-        margin-bottom: 5px;
-    }
+        /* 网格布局：自动适应 */
+        .promo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
 
-    /* === 颜色主题 === */
-    .c-parenting { background: linear-gradient(135deg, #FF9A9E, #FECFEF); color: #864449; } /* 养娃：粉嫩 */
-    .c-check     { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #555; } /* 父母检测：清新 */
-    .c-human     { background: linear-gradient(135deg, #667eea, #764ba2); } /* 说明书：深紫 */
-    .c-tax       { background: linear-gradient(to right, #43e97b 0%, #38f9d7 100%); color: #2d5a45; } /* 智商税：钱的绿色 */
-    .c-net       { background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%); } /* 互联网：科技蓝 */
-    .c-buffett   { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); } /* 巴菲特：金色 */
-    .c-resign    { background: linear-gradient(to right, #fa709a 0%, #fee140 100%); } /* 裸辞：警示橙红 */
-    .c-marriage  { background: linear-gradient(to top, #ff0844 0%, #ffb199 100%); } /* 婚姻：热烈红 */
-    .c-city      { background: linear-gradient(to top, #48c6ef 0%, #6f86d6 100%); } /* 命定之城：天际蓝 */
+        /* 按钮样式 */
+        .promo-link {
+            text-decoration: none;
+            color: white;
+            padding: 15px 10px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: bold;
+            /* 关键布局参数：手机上一行2个，电脑上自动拉伸 */
+            flex: 1 0 140px; 
+            max-width: 220px; 
+            
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column; /* 图标在上，文字在下 */
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+        }
 
-<div class="cross-promo-box">
-    <div class="promo-title">✨ 探索人类多样性工具箱 ✨</div>
-    <div class="promo-grid">
-        <a href="https://circle-of-competence.github.io/In-depth-Parenting-Assessment/" class="promo-link c-parenting">
-            <span class="promo-icon">👶</span>
-            <span>养娃后检测</span>
-        </a>
+        /* 鼠标悬停动效 */
+        .promo-link:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            opacity: 0.95;
+        }
         
-        <a href="https://circle-of-competence.github.io/father-and-mother-OK-/" class="promo-link c-check">
-            <span class="promo-icon">👨‍👩‍👧</span>
-            <span>要娃前检测</span>
-        </a>
+        .promo-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        /* === 8种颜色主题 === */
+        .c-parenting { background: linear-gradient(135deg, #FF9A9E, #FECFEF); color: #864449; }
+        .c-check     { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #555; }
+        .c-human     { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .c-tax       { background: linear-gradient(to right, #43e97b 0%, #38f9d7 100%); color: #2d5a45; }
+        .c-net       { background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%); }
+        .c-buffett   { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
+        .c-resign    { background: linear-gradient(to right, #fa709a 0%, #fee140 100%); }
+        .c-marriage  { background: linear-gradient(to top, #ff0844 0%, #ffb199 100%); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-container" id="progress-box">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div id="setup-phase">
+        <h1>PPR 父母资格与准备度残酷评估</h1>
+        <div class="subtitle">这不仅仅是个测试，这是给你未来孩子的一份保险</div>
         
-        <a href="https://circle-of-competence.github.io/human-manual/" class="promo-link c-human">
-            <span class="promo-icon">📖</span>
-            <span>人类使用说明书</span>
-        </a>
+        <div class="setup-group">
+            <label>您当前的财务与生活状态：</label>
+            <select id="finance-status">
+                <option value="Stable">相当稳定 (有房有积蓄，抗风险能力强)</option>
+                <option value="Growing">上升期 (收支平衡，但怕突发大额支出)</option>
+                <option value="Tight">月光族 (一人吃饱全家不饿，多了不行)</option>
+                <option value="Chaos">混乱 (还没搞清钱去哪了)</option>
+            </select>
+        </div>
+        <div class="setup-group">
+            <label>您要孩子的核心动机：</label>
+            <select id="motivation">
+                <option value="Love">付出爱 (想体验生命成长的过程)</option>
+                <option value="Fix">修复关系 (觉得有了孩子婚姻会更稳固)</option>
+                <option value="Pressure">社会压力 (父母催/同龄人都生了)</option>
+                <option value="Pension">防老 (养儿防老，投资回报)</option>
+            </select>
+        </div>
+
+        <div class="cross-promo-box">
+            <div class="promo-title">✨ 探索人类多样性工具箱 ✨</div>
+            <div class="promo-grid">
+                <a href="https://circle-of-competence.github.io/In-depth-Parenting-Assessment/" class="promo-link c-parenting">
+                    <span class="promo-icon">👶</span>
+                    <span>深度养育攻略</span>
+                </a>
+                
+                <a href="https://circle-of-competence.github.io/father-and-mother-OK-/" class="promo-link c-check">
+                    <span class="promo-icon">👨‍👩‍👧</span>
+                    <span>父母合格检测</span>
+                </a>
+                
+                <a href="https://circle-of-competence.github.io/human-manual/" class="promo-link c-human">
+                    <span class="promo-icon">📖</span>
+                    <span>人类使用说明书</span>
+                </a>
+                
+                <a href="https://circle-of-competence.github.io/Stupid-tax-test-/" class="promo-link c-tax">
+                    <span class="promo-icon">💸</span>
+                    <span>智商税检测</span>
+                </a>
+
+                <a href="https://circle-of-competence.github.io/Political-Typology-Quiz/" class="promo-link c-net">
+                    <span class="promo-icon">🌐</span>
+                    <span>互联网成分</span>
+                </a>
+
+                <a href="https://circle-of-competence.github.io/" class="promo-link c-buffett">
+                    <span class="promo-icon">📈</span>
+                    <span>巴菲特能力圈</span>
+                </a>
+
+                <a href="https://circle-of-competence.github.io/Impulsive-Resignation-Risk-Indicator/" class="promo-link c-resign">
+                    <span class="promo-icon">🧨</span>
+                    <span>裸辞风险检测</span>
+                </a>
+
+                <a href="https://circle-of-competence.github.io/Marriage-Assessment-Tool/" class="promo-link c-marriage">
+                    <span class="promo-icon">💍</span>
+                    <span>婚姻质量检测</span>
+                </a>
+            </div>
+        </div>
         
-        <a href="https://circle-of-competence.github.io/Stupid-tax-test-/" class="promo-link c-tax">
-            <span class="promo-icon">💸</span>
-            <span>智商税检测</span>
-        </a>
-
-        <a href="https://circle-of-competence.github.io/Political-Typology-Quiz/" class="promo-link c-net">
-            <span class="promo-icon">🌐</span>
-            <span>互联网成分检测</span>
-        </a>
-
-        <a href="https://circle-of-competence.github.io/" class="promo-link c-buffett">
-            <span class="promo-icon">📈</span>
-            <span>巴菲特能力圈</span>
-        </a>
-
-        <a href="https://circle-of-competence.github.io/Impulsive-Resignation-Risk-Indicator/" class="promo-link c-resign">
-            <span class="promo-icon">🧨</span>
-            <span>裸辞风险检测</span>
-        </a>
-
-        <a href="https://circle-of-competence.github.io/Marriage-Assessment-Tool/" class="promo-link c-marriage">
-            <span class="promo-icon">💍</span>
-            <span>婚前精神体检</span>
-        </a>
-
-        <a href="https://circle-of-competence.github.io/-/" class="promo-link c-city">
-            <span class="promo-icon">🏙️</span>
-            <span>命定之城测试</span>
-        </a>
-</div>
         <button class="btn-main btn-start-custom" onclick="startQuiz()">面对现实</button>
     </div>
 
